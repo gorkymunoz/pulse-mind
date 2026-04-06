@@ -1,9 +1,9 @@
 package com.pulsemind.infrastructure.web
 
 import com.pulsemind.application.workout.WorkoutSessionService
-import com.pulsemind.application.workout.dto.CreateWorkoutSessionRequest
-import com.pulsemind.application.workout.dto.UpdateWorkoutSessionRequest
-import com.pulsemind.application.workout.dto.WorkoutSessionResponse
+import com.pulsemind.schema.workout.request.CreateWorkoutSessionRequestDto
+import com.pulsemind.schema.workout.request.UpdateWorkoutSessionRequestDto
+import com.pulsemind.schema.workout.response.WorkoutSessionResponseDto
 import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -23,24 +23,24 @@ class WorkoutSessionController(
     private val workoutSessionService: WorkoutSessionService
 ) {
     @PostMapping
-    fun create(@Valid @RequestBody request: CreateWorkoutSessionRequest): ResponseEntity<WorkoutSessionResponse> {
+    fun create(@Valid @RequestBody request: CreateWorkoutSessionRequestDto): ResponseEntity<WorkoutSessionResponseDto> {
         val created = workoutSessionService.create(request)
         return ResponseEntity.status(HttpStatus.CREATED).body(created)
     }
 
     @GetMapping("/{id}")
-    fun findById(@PathVariable id: UUID): ResponseEntity<WorkoutSessionResponse> =
+    fun findById(@PathVariable id: UUID): ResponseEntity<WorkoutSessionResponseDto> =
         ResponseEntity.ok(workoutSessionService.findById(id))
 
     @GetMapping
-    fun findAll(): ResponseEntity<List<WorkoutSessionResponse>> =
+    fun findAll(): ResponseEntity<List<WorkoutSessionResponseDto>> =
         ResponseEntity.ok(workoutSessionService.findAll())
 
     @PutMapping("/{id}")
     fun update(
         @PathVariable id: UUID,
-        @Valid @RequestBody request: UpdateWorkoutSessionRequest
-    ): ResponseEntity<WorkoutSessionResponse> =
+        @Valid @RequestBody request: UpdateWorkoutSessionRequestDto
+    ): ResponseEntity<WorkoutSessionResponseDto> =
         ResponseEntity.ok(workoutSessionService.update(id, request))
 
     @DeleteMapping("/{id}")

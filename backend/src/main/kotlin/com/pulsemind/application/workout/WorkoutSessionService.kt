@@ -1,15 +1,18 @@
 package com.pulsemind.application.workout
 
-import com.pulsemind.application.workout.dto.CreateWorkoutSessionRequest
-import com.pulsemind.application.workout.dto.ExerciseResponse
-import com.pulsemind.application.workout.dto.UpdateWorkoutSessionRequest
-import com.pulsemind.application.workout.dto.WorkoutSessionResponse
+import com.pulsemind.schema.workout.request.CreateWorkoutSessionRequestDto
+import com.pulsemind.schema.workout.request.UpdateWorkoutSessionRequestDto
+import com.pulsemind.schema.workout.response.WorkoutSessionResponseDto
+import com.pulsemind.schema.workout.model.ExerciseDto
+import com.pulsemind.schema.workout.model.MoodEntryDto
 import com.pulsemind.domain.workout.Exercise
+import com.pulsemind.domain.workout.MoodEntry
 import com.pulsemind.domain.workout.WorkoutSession
 import com.pulsemind.infrastructure.persistence.WorkoutSessionRepository
 import jakarta.persistence.EntityNotFoundException
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import java.time.LocalDateTime
 import java.util.UUID
 
 @Service
@@ -17,11 +20,11 @@ import java.util.UUID
 class WorkoutSessionService(
     private val workoutSessionRepository: WorkoutSessionRepository
 ) {
-    fun create(request: CreateWorkoutSessionRequest): WorkoutSessionResponse {
+    fun create(request: CreateWorkoutSessionRequestDto): WorkoutSessionResponseDto {
         val session = WorkoutSession(
             userId = request.userId,
-            sessionDate = request.sessionDate,
-            mood = request.mood
+            sessionDate = LocalDateTime.parse(request.sessionDate),
+            mood = request.mood.toDomain()
         )
 
         val exercises = request.exercises.map {
@@ -34,26 +37,26 @@ class WorkoutSessionService(
         }
         session.replaceExercises(exercises)
 
-        return workoutSessionRepository.save(session).toResponse()
+        return workoutSessionRepository.save(session).toResponseDto()
     }
 
     @Transactional(readOnly = true)
-    fun findById(id: UUID): WorkoutSessionResponse {
+    fun findById(id: UUID): WorkoutSessionResponseDto {
         val session = workoutSessionRepository.findById(id)
             .orElseThrow { EntityNotFoundException("WorkoutSession not found for id: $id") }
-        return session.toResponse()
+        return session.toResponseDto()
     }
 
     @Transactional(readOnly = true)
-    fun findAll(): List<WorkoutSessionResponse> =
-        workoutSessionRepository.findAll().map { it.toResponse() }
+    fun findAll(): List<WorkoutSessionResponseDto> =
+        workoutSessionRepository.findAll().map { it.toResponseDto() }
 
-    fun update(id: UUID, request: UpdateWorkoutSessionRequest): WorkoutSessionResponse {
+    fun update(id: UUID, request: UpdateWorkoutSessionRequestDto): WorkoutSessionResponseDto {
         val session = workoutSessionRepository.findById(id)
             .orElseThrow { EntityNotFoundException("WorkoutSession not found for id: $id") }
 
-        session.sessionDate = request.sessionDate
-        session.mood = request.mood
+        session.sessionDate = LocalDateTime.parse(request.sessionDate)
+        session.mood = request.mood.toDomain()
         val exercises = request.exercises.map {
             Exercise(
                 name = it.name,
@@ -64,7 +67,7 @@ class WorkoutSessionService(
         }
         session.replaceExercises(exercises)
 
-        return workoutSessionRepository.save(session).toResponse()
+        return workoutSessionRepository.save(session).toResponseDto()
     }
 
     fun delete(id: UUID) {
@@ -74,19 +77,23 @@ class WorkoutSessionService(
         workoutSessionRepository.deleteById(id)
     }
 
-    private fun WorkoutSession.toResponse(): WorkoutSessionResponse = WorkoutSessionResponse(
-        id = requireNotNull(id),
+    private fun WorkoutSession.toResponseDto(): WorkoutSessionResponseDto = WorkoutSessionResponseDto(
+        id = requireNotNull(id).toString(),
         userId = userId,
-        sessionDate = sessionDate,
-        mood = mood,
+        sessionDate = sessionDate.toString(),
+        mood = mood.toDto(),
         exercises = exercises.map { exercise ->
-            ExerciseResponse(
-                id = requireNotNull(exercise.id),
+            ExerciseDto(
+                id = requireNotNull(exercise.id).toString(),
                 name = exercise.name,
                 reps = exercise.reps,
                 weight = exercise.weight
             )
         }
     )
+
+    private fun MoodEntryDto.toDomain(): MoodEntry = MoodEntry.valueOf(this.name)
+
+    private fun MoodEntry.toDto(): MoodEntryDto = MoodEntryDto.valueOf(this.name)
 }
 

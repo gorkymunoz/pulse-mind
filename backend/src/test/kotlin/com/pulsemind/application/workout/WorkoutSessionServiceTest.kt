@@ -1,10 +1,11 @@
 package com.pulsemind.application.workout
 
-import com.pulsemind.application.workout.dto.CreateWorkoutSessionRequest
-import com.pulsemind.application.workout.dto.ExerciseRequest
-import com.pulsemind.application.workout.dto.UpdateWorkoutSessionRequest
+import com.pulsemind.schema.workout.request.CreateWorkoutSessionRequestDto
+import com.pulsemind.schema.workout.model.ExerciseDto
+import com.pulsemind.schema.workout.request.UpdateWorkoutSessionRequestDto
 import com.pulsemind.domain.workout.Exercise
 import com.pulsemind.domain.workout.MoodEntry
+import com.pulsemind.schema.workout.model.MoodEntryDto
 import com.pulsemind.domain.workout.WorkoutSession
 import com.pulsemind.infrastructure.persistence.WorkoutSessionRepository
 import io.mockk.every
@@ -25,11 +26,11 @@ class WorkoutSessionServiceTest {
     @Test
     fun `create should persist session and return DTO with exercises`() {
         val now = LocalDateTime.now()
-        val request = CreateWorkoutSessionRequest(
+        val request = CreateWorkoutSessionRequestDto(
             userId = "user-123",
-            sessionDate = now,
-            mood = MoodEntry.GREAT,
-            exercises = listOf(ExerciseRequest("Bench Press", 10, 80.0))
+            sessionDate = now.toString(),
+            mood = MoodEntryDto.GREAT,
+            exercises = listOf(ExerciseDto(name = "Bench Press", reps = 10, weight = 80.0))
         )
 
         every { repository.save(any()) } answers {
@@ -56,7 +57,7 @@ class WorkoutSessionServiceTest {
         val result = service.create(request)
 
         assertEquals("user-123", result.userId)
-        assertEquals(MoodEntry.GREAT, result.mood)
+        assertEquals(MoodEntryDto.GREAT, result.mood)
         assertEquals(1, result.exercises.size)
         verify(exactly = 1) { repository.save(any()) }
     }
@@ -130,14 +131,14 @@ class WorkoutSessionServiceTest {
 
         val updated = service.update(
             existing.id!!,
-            UpdateWorkoutSessionRequest(
-                sessionDate = existing.sessionDate.plusDays(1),
-                mood = MoodEntry.GREAT,
-                exercises = listOf(ExerciseRequest("Pull Ups", 12, 0.0))
+            UpdateWorkoutSessionRequestDto(
+                sessionDate = existing.sessionDate.plusDays(1).toString(),
+                mood = MoodEntryDto.GREAT,
+                exercises = listOf(ExerciseDto(name = "Pull Ups", reps = 12, weight = 0.0))
             )
         )
 
-        assertEquals(MoodEntry.GREAT, updated.mood)
+        assertEquals(MoodEntryDto.GREAT, updated.mood)
         assertEquals(1, updated.exercises.size)
         assertEquals("Pull Ups", updated.exercises.first().name)
     }
