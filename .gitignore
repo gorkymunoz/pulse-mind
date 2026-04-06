@@ -2,3 +2,9 @@
 .gradle/
 **/build/
 .DS_Store
+
+# Kotlin
+.kotlin/
+kotlin-js-store/
+jslib/
+out/

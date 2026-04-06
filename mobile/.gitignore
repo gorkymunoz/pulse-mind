@@ -1,0 +1,62 @@
+# Gradle
+.gradle/
+build/
+gradle-app.setting
+!gradle-wrapper.jar
+.gradletasknamecache
+
+# Gradle local properties
+local.properties
+
+# IDE - Android Studio / IntelliJ
+.idea/
+*.iml
+*.iws
+*.ipr
+*.swp
+*.swo
+*~
+.classpath
+.project
+.settings/
+.vscode/
+*.sublime-project
+*.sublime-workspace
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Xcode
+iosApp/.xcodeproj/xcuserdata/
+iosApp/build/
+*.xcworkspace/xcuserdata/
+DerivedData/
+*.pbxuser
+*.xcworkspace
+xcuserdata/
+
+# CocoaPods
+Pods/
+*.podspec
+
+# Node modules (if used for web/JS build)
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# OS
+.env
+.env.local
+.env.*.local
+
+# Misc
+*.class
+*.log
+*.jar
+*.war
+*.ear
+*.zip
+*.tar.gz
+*.rar
