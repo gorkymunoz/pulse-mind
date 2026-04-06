@@ -1,0 +1,52 @@
+package com.pulsemind.infrastructure.web
+
+import com.pulsemind.application.workout.WorkoutSessionService
+import com.pulsemind.application.workout.dto.CreateWorkoutSessionRequest
+import com.pulsemind.application.workout.dto.UpdateWorkoutSessionRequest
+import com.pulsemind.application.workout.dto.WorkoutSessionResponse
+import jakarta.validation.Valid
+import org.springframework.http.HttpStatus
+import org.springframework.http.ResponseEntity
+import org.springframework.web.bind.annotation.DeleteMapping
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.PutMapping
+import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RestController
+import java.util.UUID
+
+@RestController
+@RequestMapping("/api/v1/workout-sessions")
+class WorkoutSessionController(
+    private val workoutSessionService: WorkoutSessionService
+) {
+    @PostMapping
+    fun create(@Valid @RequestBody request: CreateWorkoutSessionRequest): ResponseEntity<WorkoutSessionResponse> {
+        val created = workoutSessionService.create(request)
+        return ResponseEntity.status(HttpStatus.CREATED).body(created)
+    }
+
+    @GetMapping("/{id}")
+    fun findById(@PathVariable id: UUID): ResponseEntity<WorkoutSessionResponse> =
+        ResponseEntity.ok(workoutSessionService.findById(id))
+
+    @GetMapping
+    fun findAll(): ResponseEntity<List<WorkoutSessionResponse>> =
+        ResponseEntity.ok(workoutSessionService.findAll())
+
+    @PutMapping("/{id}")
+    fun update(
+        @PathVariable id: UUID,
+        @Valid @RequestBody request: UpdateWorkoutSessionRequest
+    ): ResponseEntity<WorkoutSessionResponse> =
+        ResponseEntity.ok(workoutSessionService.update(id, request))
+
+    @DeleteMapping("/{id}")
+    fun delete(@PathVariable id: UUID): ResponseEntity<Void> {
+        workoutSessionService.delete(id)
+        return ResponseEntity.noContent().build()
+    }
+}
+
